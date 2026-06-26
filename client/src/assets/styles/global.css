@@ -1,0 +1,69 @@
+:root {
+  --bg-primary: #1a1d23;
+  --bg-secondary: #22262e;
+  --bg-tertiary: #2a2f38;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --color-accent: #f0883e;
+  --color-accent-hover: #d87531;
+  --color-danger: #f85149;
+  --color-warning: #d29922;
+  --color-success: #3fb950;
+  --color-info: #58a6ff;
+  --border-color: #30363d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Element Plus 深色主题变量覆盖 */
+:root {
+  --el-bg-color: #22262e;
+  --el-bg-color-overlay: #2a2f38;
+  --el-text-color-primary: #e6edf3;
+  --el-text-color-regular: #8b949e;
+  --el-border-color: #30363d;
+  --el-fill-color-blank: #2a2f38;
+  --el-color-primary: #f0883e;
+  --el-color-success: #3fb950;
+  --el-color-warning: #d29922;
+  --el-color-danger: #f85149;
+  --el-color-info: #58a6ff;
+}
+
+/* 全局滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

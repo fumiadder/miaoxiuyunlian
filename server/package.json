@@ -1,0 +1,29 @@
+{
+  "name": "industrial-maintenance-server",
+  "version": "1.0.0",
+  "description": "工业维修管理系统后端",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "start": "node --loader tsx src/app.ts",
+    "migrate": "tsx src/db/migrate.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^26.0.1",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.22.4"
+  }
+}
