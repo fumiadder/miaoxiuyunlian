@@ -11,10 +11,11 @@ export default defineConfig({
     Components({ resolvers: [ElementPlusResolver()] }),
   ],
   server: {
+    host: '0.0.0.0',
     port: 3000,
     proxy: {
-      '/api': { target: 'http://localhost:4000', changeOrigin: true },
-      '/static': { target: 'http://localhost:4000', changeOrigin: true },
+      '/api': { target: 'http://127.0.0.1:4000', changeOrigin: true },
+      '/static': { target: 'http://127.0.0.1:4000', changeOrigin: true },
     },
   },
 })
