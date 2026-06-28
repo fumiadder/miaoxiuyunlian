@@ -8,7 +8,12 @@ export interface LoginResult {
 }
 
 export function login(name: string, password: string) {
-  return request.post<{ data: LoginResult }>('/auth/login', { name, password }).then(r => r.data.data)
+  return request.post<{ data: LoginResult }>('/auth/login', { name, password }).then((r: any) => {
+    if (r.code !== 0) {
+      throw new Error(r.message || '登录失败')
+    }
+    return r.data.data
+  })
 }
 
 export function getUsers() {

@@ -7,12 +7,12 @@ const router = Router();
 router.post('/login', (req, res) => {
   const { name, password } = req.body;
   if (!name || !password) {
-    return res.status(400).json({ code: 1, message: '用户名和密码不能为空' });
+    return res.json({ code: 1, message: '用户名和密码不能为空' });
   }
 
   const user = db.prepare('SELECT * FROM users WHERE name = ?').get(name);
   if (!user || user.password !== password) {
-    return res.status(401).json({ code: 1, message: '用户名或密码错误' });
+    return res.json({ code: 1, message: '用户名或密码错误' });
   }
 
   res.json({
