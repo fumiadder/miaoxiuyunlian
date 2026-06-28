@@ -5,7 +5,7 @@
         <img src="/logo.png" alt="CHINALCO" />
       </div>
       <h1 class="login-title">秒修云链</h1>
-      <p class="login-subtitle">中铝集团设备维修管理平台</p>
+      <p class="login-subtitle">云铝溢鑫设备维修管理平台</p>
       <el-form ref="formRef" :model="form" :rules="rules" class="login-form" @submit.prevent="handleLogin">
         <el-form-item prop="name">
           <el-input v-model="form.name" prefix-icon="User" placeholder="请输入用户名" size="large" />
