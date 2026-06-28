@@ -15,6 +15,17 @@ const request: AxiosInstance = axios.create({
 
 request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const stored = localStorage.getItem('maintenance_user')
+    if (stored) {
+      try {
+        const user = JSON.parse(stored)
+        if (user.token) {
+          config.headers['x-token'] = user.token
+        }
+      } catch {
+        // ignore
+      }
+    }
     return config
   },
   (error) => {
@@ -29,7 +40,7 @@ request.interceptors.response.use(
       ElMessage.error(res.message || '请求失败')
       return Promise.reject(new Error(res.message || '请求失败'))
     }
-    return res
+    return res as any
   },
   (error) => {
     const msg = error.response?.data?.message || error.message || '网络错误'

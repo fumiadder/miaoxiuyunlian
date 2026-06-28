@@ -7,11 +7,13 @@ const STORAGE_KEY = 'maintenance_user'
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<{
+    id: number
     name: string
     role: UserRole
     token: string
     is_admin: boolean
   }>({
+    id: 0,
     name: '',
     role: 'worker',
     token: '',
@@ -20,8 +22,9 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoggedIn = computed(() => !!currentUser.value.token)
 
-  function login(name: string, role: UserRole, token: string, is_admin: boolean = false) {
+  function login(id: number, name: string, role: UserRole, token: string, is_admin: boolean = false) {
     currentUser.value = {
+      id,
       name: name.trim(),
       role,
       token,
@@ -31,7 +34,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function logout() {
-    currentUser.value = { name: '', role: 'worker', token: '', is_admin: false }
+    currentUser.value = { id: 0, name: '', role: 'worker', token: '', is_admin: false }
     localStorage.removeItem(STORAGE_KEY)
   }
 

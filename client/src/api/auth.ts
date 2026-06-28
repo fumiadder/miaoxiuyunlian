@@ -1,6 +1,7 @@
 import request from './request'
 
 export interface LoginResult {
+  id: number
   name: string
   role: 'reporter' | 'worker'
   is_admin: boolean

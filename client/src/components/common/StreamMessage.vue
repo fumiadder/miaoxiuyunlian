@@ -24,18 +24,6 @@ const displayText = ref('')
 let currentIndex = 0
 let timer: ReturnType<typeof setInterval> | null = null
 
-function startTyping() {
-  if (timer) return
-  timer = setInterval(() => {
-    if (currentIndex < props.content.length) {
-      displayText.value += props.content[currentIndex]
-      currentIndex++
-    } else {
-      stopTyping()
-    }
-  }, 30)
-}
-
 function stopTyping() {
   if (timer) {
     clearInterval(timer)

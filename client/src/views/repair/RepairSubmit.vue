@@ -52,7 +52,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import PhotoUploader from '../../components/common/PhotoUploader.vue'
 import { createFault } from '../../api/fault'
-import type { FaultStatus } from '../../types/fault'
+
 import { useUserStore } from '../../stores/user'
 
 const userStore = useUserStore()

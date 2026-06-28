@@ -26,7 +26,7 @@
             <el-progress
               :percentage="getProgress(row.status)"
               :stroke-width="6"
-              :format="() => FAULT_STATUS_MAP[row.status]"
+              :format="() => FAULT_STATUS_MAP[row.status as keyof typeof FAULT_STATUS_MAP]"
             />
           </template>
         </el-table-column>

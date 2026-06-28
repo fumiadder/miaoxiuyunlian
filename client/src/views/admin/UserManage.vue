@@ -30,12 +30,13 @@
             {{ formatDate(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" align="center" fixed="right">
+        <el-table-column label="操作" width="120" align="center" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="openEditDialog(row)">
-              编辑
+              {{ userStore.currentUser.is_admin ? '编辑' : '重置密码' }}
             </el-button>
             <el-popconfirm
+              v-if="userStore.currentUser.is_admin"
               title="确定删除该人员吗？"
               confirm-button-text="确定"
               cancel-button-text="取消"
@@ -53,32 +54,32 @@
     <!-- 新增/编辑人员弹窗 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="isEdit ? '编辑人员' : '新增人员'"
+      :title="dialogTitle"
       width="480px"
       destroy-on-close
     >
       <el-form
         ref="dialogFormRef"
         :model="dialogForm"
-        :rules="dialogRules"
+        :rules="computedDialogRules"
         label-width="100px"
       >
-        <el-form-item label="用户名" prop="name">
+        <el-form-item label="用户名" prop="name" v-if="userStore.currentUser.is_admin">
           <el-input v-model="dialogForm.name" placeholder="请输入用户名" />
         </el-form-item>
-        <el-form-item label="密码" prop="password" v-if="!isEdit">
+        <el-form-item label="密码" prop="password" v-if="!isEdit && userStore.currentUser.is_admin">
           <el-input v-model="dialogForm.password" placeholder="请输入密码" type="password" show-password />
         </el-form-item>
         <el-form-item label="密码" prop="password" v-else>
-          <el-input v-model="dialogForm.password" placeholder="留空则不修改密码" type="password" show-password />
+          <el-input v-model="dialogForm.password" :placeholder="userStore.currentUser.is_admin ? '留空则不修改密码' : '请输入新密码'" type="password" show-password />
         </el-form-item>
-        <el-form-item label="角色" prop="role">
+        <el-form-item label="角色" prop="role" v-if="userStore.currentUser.is_admin">
           <el-radio-group v-model="dialogForm.role">
             <el-radio value="reporter">报修人</el-radio>
             <el-radio value="worker">检修人</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="是否管理员">
+        <el-form-item label="是否管理员" v-if="userStore.currentUser.is_admin">
           <el-checkbox v-model="dialogForm.is_admin">管理员</el-checkbox>
         </el-form-item>
       </el-form>
@@ -93,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { getUsers, createUser, updateUser, deleteUser } from '../../api/auth'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -117,11 +118,23 @@ const dialogForm = reactive({
   is_admin: false,
 })
 
-const dialogRules: FormRules = {
-  name: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: !isEdit.value, message: '请输入密码', trigger: 'blur' }],
-  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
-}
+const computedDialogRules = computed<FormRules>(() => {
+  if (!userStore.currentUser.is_admin && isEdit.value) {
+    return {
+      password: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
+    }
+  }
+  return {
+    name: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+    password: [{ required: !isEdit.value, message: '请输入密码', trigger: 'blur' }],
+    role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  }
+})
+
+const dialogTitle = computed(() => {
+  if (!userStore.currentUser.is_admin && isEdit.value) return '重置密码'
+  return isEdit.value ? '编辑人员' : '新增人员'
+})
 
 function formatDate(dateStr: string) {
   if (!dateStr) return '-'
@@ -179,16 +192,22 @@ async function handleSubmit() {
   submitting.value = true
   try {
     if (isEdit.value && editingId.value !== null) {
-      const payload: any = {
-        name: dialogForm.name,
-        role: dialogForm.role,
-        is_admin: dialogForm.is_admin,
-      }
-      if (dialogForm.password) {
-        payload.password = dialogForm.password
+      let payload: any
+      if (!userStore.currentUser.is_admin) {
+        // 非管理员只能修改自己的密码
+        payload = { password: dialogForm.password }
+      } else {
+        payload = {
+          name: dialogForm.name,
+          role: dialogForm.role,
+          is_admin: dialogForm.is_admin,
+        }
+        if (dialogForm.password) {
+          payload.password = dialogForm.password
+        }
       }
       await updateUser(editingId.value, payload)
-      ElMessage.success('编辑成功')
+      ElMessage.success(userStore.currentUser.is_admin ? '编辑成功' : '密码重置成功')
     } else {
       await createUser({
         name: dialogForm.name,
