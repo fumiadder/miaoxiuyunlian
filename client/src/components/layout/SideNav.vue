@@ -9,18 +9,18 @@
     text-color="var(--text-secondary)"
     active-text-color="var(--color-accent)"
   >
-    <!-- 备件查询（报修人 + 检修人） -->
+    <!-- 备件管理 -->
     <el-sub-menu index="spare-parts-plan">
       <template #title>
         <el-icon><Box /></el-icon>
         <span>备件管理</span>
       </template>
       <el-menu-item index="/spare-parts/query">备件查询</el-menu-item>
-      <el-menu-item v-if="userStore.currentUser.role === 'reporter'" index="/spare-parts/material-plan">备件材料计划表</el-menu-item>
+      <el-menu-item index="/spare-parts/material-plan">备件材料计划表</el-menu-item>
     </el-sub-menu>
 
-    <!-- 报修管理 - 报修人可见 -->
-    <el-sub-menu v-if="userStore.currentUser.role === 'reporter'" index="repair-mgmt">
+    <!-- 报修管理 -->
+    <el-sub-menu index="repair-mgmt">
       <template #title>
         <el-icon><SetUp /></el-icon>
         <span>报修管理</span>
@@ -29,8 +29,8 @@
       <el-menu-item index="/repair/tracking">报修进度跟踪</el-menu-item>
     </el-sub-menu>
 
-    <!-- 故障管理 - 检修人可见 -->
-    <el-sub-menu v-if="userStore.currentUser.role === 'worker'" index="fault-mgmt">
+    <!-- 故障管理 -->
+    <el-sub-menu index="fault-mgmt">
       <template #title>
         <el-icon><Warning /></el-icon>
         <span>故障管理</span>
@@ -39,20 +39,20 @@
       <el-menu-item index="/fault/list">故障记录</el-menu-item>
     </el-sub-menu>
 
-    <!-- 检修工作台 - 检修人可见 -->
-    <el-menu-item v-if="userStore.currentUser.role === 'worker'" index="/repair/workbench">
+    <!-- 检修工作台 -->
+    <el-menu-item index="/repair/workbench">
       <el-icon><SetUp /></el-icon>
       <template #title>检修工作台</template>
     </el-menu-item>
 
-    <!-- 统计仪表盘（报修人 + 检修人） -->
+    <!-- 统计仪表盘 -->
     <el-menu-item index="/report/dashboard">
       <el-icon><DataAnalysis /></el-icon>
       <template #title>统计仪表盘</template>
     </el-menu-item>
 
-    <!-- 排班管理 - 检修人可见 -->
-    <el-sub-menu v-if="userStore.currentUser.role === 'worker'" index="schedule-mgmt">
+    <!-- 排班管理 -->
+    <el-sub-menu index="schedule-mgmt">
       <template #title>
         <el-icon><Calendar /></el-icon>
         <span>排班管理</span>
@@ -66,7 +66,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/app'
-import { useUserStore } from '../../stores/user'
 import {
   Box,
   Warning,
@@ -77,7 +76,6 @@ import {
 
 const route = useRoute()
 const appStore = useAppStore()
-const userStore = useUserStore()
 
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const activeMenu = computed(() => route.path)

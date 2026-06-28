@@ -6,7 +6,7 @@
         <Expand v-else />
       </el-icon>
       <img src="/logo.png" class="header-logo" alt="logo" />
-      <span class="system-title">工业维修管理系统</span>
+      <span class="system-title">秒修云链</span>
     </div>
     <div class="header-right">
       <el-tag :type="currentUser.role === 'worker' ? 'warning' : 'primary'" size="small">
