@@ -5,29 +5,29 @@
         <Fold v-if="!sidebarCollapsed" />
         <Expand v-else />
       </el-icon>
+      <img src="/logo.png" class="header-logo" alt="logo" />
       <span class="system-title">工业维修管理系统</span>
     </div>
     <div class="header-right">
-      <el-select
-        :model-value="currentUser.role"
-        size="small"
-        style="width: 120px"
-        @change="handleRoleChange"
-      >
-        <el-option label="报修人" value="reporter" />
-        <el-option label="检修人" value="worker" />
-      </el-select>
+      <el-tag :type="currentUser.role === 'worker' ? 'warning' : 'primary'" size="small">
+        {{ currentUser.role === 'worker' ? '检修人' : '报修人' }}
+      </el-tag>
       <span class="user-name">{{ currentUser.name || '未登录' }}</span>
+      <el-button size="small" type="danger" plain @click="handleLogout">
+        退出
+      </el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { Fold, Expand } from '@element-plus/icons-vue'
 import { useAppStore } from '../../stores/app'
-import { useUserStore, type UserRole } from '../../stores/user'
+import { useUserStore } from '../../stores/user'
 
+const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
@@ -38,8 +38,9 @@ function toggleSidebar() {
   appStore.toggleSidebar()
 }
 
-function handleRoleChange(role: UserRole) {
-  userStore.setUser(currentUser.value.name, role)
+function handleLogout() {
+  userStore.logout()
+  router.push('/login')
 }
 </script>
 
@@ -67,6 +68,11 @@ function handleRoleChange(role: UserRole) {
 
 .toggle-btn:hover {
   color: var(--color-accent);
+}
+
+.header-logo {
+  height: 32px;
+  margin-right: 12px;
 }
 
 .system-title {

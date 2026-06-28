@@ -47,13 +47,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import PhotoUploader from '../../components/common/PhotoUploader.vue'
 import { createFault } from '../../api/fault'
 import type { FaultStatus } from '../../types/fault'
+import { useUserStore } from '../../stores/user'
 
+const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
 const photoUrl = ref('')
@@ -63,6 +65,10 @@ const form = reactive({
   fault_description: '',
   urgency: 'normal',
   reporter_name: '',
+})
+
+onMounted(() => {
+  form.reporter_name = userStore.currentUser.name
 })
 
 const rules: FormRules = {

@@ -1,18 +1,40 @@
+/* ========== 全局变量 - 蓝白企业风格 ========== */
 :root {
-  --bg-primary: #1a1d23;
-  --bg-secondary: #22262e;
-  --bg-tertiary: #2a2f38;
-  --text-primary: #e6edf3;
-  --text-secondary: #8b949e;
-  --color-accent: #f0883e;
-  --color-accent-hover: #d87531;
-  --color-danger: #f85149;
-  --color-warning: #d29922;
-  --color-success: #3fb950;
-  --color-info: #58a6ff;
-  --border-color: #30363d;
+  /* 背景 */
+  --bg-primary: #f0f5ff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f7f9fc;
+  --bg-surface: #edf2ff;
+
+  /* 文字 */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* 强调色 */
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-light: #eff6ff;
+
+  /* 状态色 */
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-info: #2563eb;
+  --color-info-bg: #eff6ff;
+
+  /* 边框 */
+  --border-color: #e2e8f0;
+  --border-color-light: #f1f5f9;
+
+  /* 字体 */
+  --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* ========== 全局重置 ========== */
 * {
   margin: 0;
   padding: 0;
@@ -20,11 +42,78 @@
 }
 
 body {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-family);
   background: var(--bg-primary);
   color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== Element Plus 变量覆盖（蓝白主题） ========== */
+:root {
+  --el-bg-color: #ffffff;
+  --el-bg-color-overlay: #ffffff;
+  --el-bg-color-page: #f0f5ff;
+  --el-text-color-primary: #1e293b;
+  --el-text-color-regular: #64748b;
+  --el-text-color-secondary: #94a3b8;
+  --el-text-color-placeholder: #cbd5e1;
+  --el-border-color: #e2e8f0;
+  --el-border-color-light: #f1f5f9;
+  --el-border-color-lighter: #f8fafc;
+  --el-fill-color: #f1f5f9;
+  --el-fill-color-light: #f8fafc;
+  --el-fill-color-blank: #ffffff;
+  --el-color-primary: #2563eb;
+  --el-color-primary-light-3: #93c5fd;
+  --el-color-primary-light-5: #bfdbfe;
+  --el-color-primary-light-7: #dbeafe;
+  --el-color-primary-light-8: #eff6ff;
+  --el-color-primary-light-9: #f0f5ff;
+  --el-color-primary-dark-2: #1d4ed8;
+  --el-color-success: #16a34a;
+  --el-color-success-light-5: #bbf7d0;
+  --el-color-success-light-9: #f0fdf4;
+  --el-color-warning: #f59e0b;
+  --el-color-warning-light-5: #fde68a;
+  --el-color-warning-light-9: #fffbeb;
+  --el-color-danger: #dc2626;
+  --el-color-danger-light-5: #fca5a5;
+  --el-color-danger-light-9: #fef2f2;
+  --el-color-info: #2563eb;
+  --el-color-info-light-5: #bfdbfe;
+  --el-color-info-light-9: #eff6ff;
+  --el-menu-bg-color: #ffffff;
+  --el-menu-hover-bg-color: #f0f5ff;
+  --el-menu-active-color: #2563eb;
+  --el-menu-text-color: #1e293b;
+  --el-menu-item-height: 48px;
+  --el-card-bg-color: #ffffff;
+  --el-disabled-text-color: #cbd5e1;
+  --el-disabled-bg-color: #f1f5f9;
+  --el-mask-color: rgba(30, 41, 59, 0.5);
+}
+
+/* ========== 滚动条 ========== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========== 全局链接 ========== */
 a {
   color: var(--color-accent);
   text-decoration: none;
@@ -32,38 +121,4 @@ a {
 
 a:hover {
   color: var(--color-accent-hover);
-}
-
-/* Element Plus 深色主题变量覆盖 */
-:root {
-  --el-bg-color: #22262e;
-  --el-bg-color-overlay: #2a2f38;
-  --el-text-color-primary: #e6edf3;
-  --el-text-color-regular: #8b949e;
-  --el-border-color: #30363d;
-  --el-fill-color-blank: #2a2f38;
-  --el-color-primary: #f0883e;
-  --el-color-success: #3fb950;
-  --el-color-warning: #d29922;
-  --el-color-danger: #f85149;
-  --el-color-info: #58a6ff;
-}
-
-/* 全局滚动条样式 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
 }

@@ -85,12 +85,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { createFault, submitFeedback } from '../../api/fault'
 import type { FaultRecord, RepairCase } from '../../types/fault'
+import { useUserStore } from '../../stores/user'
 
+const userStore = useUserStore()
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
 const showResult = ref(false)
@@ -110,6 +112,10 @@ const rules: FormRules = {
   fault_description: [{ required: true, message: '请输入故障描述', trigger: 'blur' }],
   reporter_name: [{ required: true, message: '请输入报修人姓名', trigger: 'blur' }],
 }
+
+onMounted(() => {
+  form.reporter_name = userStore.currentUser.name
+})
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate().catch(() => false)
