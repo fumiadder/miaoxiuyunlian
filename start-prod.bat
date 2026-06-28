@@ -131,7 +131,7 @@ if not exist ".env" (
 echo.
 
 :: ============================================
-:: 8. 启动生产服务
+:: 8. 启动生产服务（Ctrl+C 停止）
 :: ============================================
 echo [8/8] 启动生产服务...
 
@@ -139,51 +139,17 @@ echo [8/8] 启动生产服务...
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do set IP=%%a
 set IP=%IP: =%
 
-:: 清理可能遗留的 PID 文件
-del "%~dp0server.pid" 2>nul
-del "%~dp0server.log" 2>nul
-
-:: 启动后端（隐藏窗口，输出到日志）
-echo [启动] 生产服务 http://%IP%:4000 ...
-powershell -Command "$p = Start-Process -FilePath 'cmd' -ArgumentList '/c cd /d "%~dp0server" && npx tsx src/app.ts' -PassThru -WindowStyle Hidden; $p.Id | Out-File -FilePath '%~dp0server.pid' -Encoding ASCII"
-
-timeout /t 3 /nobreak >nul
-
 echo.
 echo ============================================
 echo   秒修云链 生产服务运行中
-echo ============================================
 echo   访问地址: http://%IP%:4000
 echo   默认账号: admin / admin123
-echo.
-echo   按任意键停止服务...
+echo   按 Ctrl+C 停止服务
 echo ============================================
 echo.
-
-pause >nul
-
-:: ============================================
-:: 停止服务
-:: ============================================
-echo [停止] 正在关闭服务...
-
-set "SERVER_PID="
-
-if exist "%~dp0server.pid" (
-    for /f %%a in ('type "%~dp0server.pid"') do set SERVER_PID=%%a
-)
-
-if defined SERVER_PID (
-    taskkill /PID %SERVER_PID% /F /T >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo [OK] 服务已停止
-    ) else (
-        echo [提示] 服务进程可能已退出
-    )
-)
-
-del "%~dp0server.pid" 2>nul
-
+echo ---------- 服务日志 ----------
 echo.
-echo [完成] 服务已停止
-timeout /t 2 >nul
+
+:: 启动后端（前台运行），输出实时日志
+cd /d "%~dp0server"
+npx tsx src/app.ts

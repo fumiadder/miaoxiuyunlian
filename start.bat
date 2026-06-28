@@ -117,81 +117,44 @@ if not exist ".env" (
 echo.
 
 :: ============================================
-:: 7. 启动服务
+:: 7. 启动服务（Ctrl+C 停止）
 :: ============================================
 echo [7/7] 启动服务...
+echo.
 
 :: 获取本机 IP
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do set IP=%%a
 set IP=%IP: =%
 
-:: 清理可能遗留的 PID 文件
-del "%~dp0server.pid" 2>nul
-del "%~dp0client.pid" 2>nul
-del "%~dp0server.log" 2>nul
-del "%~dp0client.log" 2>nul
-
-:: 启动后端（隐藏窗口，输出到日志）
-echo [启动] 后端服务 http://%IP%:4000 ...
-powershell -Command "$p = Start-Process -FilePath 'cmd' -ArgumentList '/c cd /d "%~dp0server" && npx tsx src/app.ts' -PassThru -WindowStyle Hidden; $p.Id | Out-File -FilePath '%~dp0server.pid' -Encoding ASCII"
-
-timeout /t 3 /nobreak >nul
-
-:: 启动前端（隐藏窗口，输出到日志）
-echo [启动] 前端服务 http://%IP%:3000 ...
-powershell -Command "$p = Start-Process -FilePath 'cmd' -ArgumentList '/c cd /d "%~dp0client" && npx vite --host 0.0.0.0 --port 3000' -PassThru -WindowStyle Hidden; $p.Id | Out-File -FilePath '%~dp0client.pid' -Encoding ASCII"
-
-timeout /t 2 /nobreak >nul
-
 echo.
 echo ============================================
 echo   秒修云链 服务运行中
-echo ============================================
 echo   后端: http://%IP%:4000
 echo   前端: http://%IP%:3000
 echo   默认账号: admin / admin123
-echo.
-echo   按任意键停止所有服务...
+echo   按 Ctrl+C 停止所有服务
 echo ============================================
 echo.
+echo ---------- 后端日志 ----------
+echo.
 
-pause >nul
+:: 启动后端（前台运行），输出实时日志
+cd /d "%~dp0server"
+start /b "" npx tsx src/app.ts
+set BACKEND_PID=!
 
-:: ============================================
-:: 停止服务
-:: ============================================
-echo [停止] 正在关闭服务...
-
-set "BACKEND_PID="
-set "CLIENT_PID="
-
-if exist "%~dp0server.pid" (
-    for /f %%a in ('type "%~dp0server.pid"') do set BACKEND_PID=%%a
-)
-if exist "%~dp0client.pid" (
-    for /f %%a in ('type "%~dp0client.pid"') do set CLIENT_PID=%%a
-)
-
-if defined BACKEND_PID (
-    taskkill /PID %BACKEND_PID% /F /T >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo [OK] 后端已停止
-    ) else (
-        echo [提示] 后端进程可能已退出
-    )
-)
-if defined CLIENT_PID (
-    taskkill /PID %CLIENT_PID% /F /T >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo [OK] 前端已停止
-    ) else (
-        echo [提示] 前端进程可能已退出
-    )
-)
-
-del "%~dp0server.pid" 2>nul
-del "%~dp0client.pid" 2>nul
+:: 等待后端启动
+timeout /t 3 /nobreak >nul
 
 echo.
-echo [完成] 所有服务已停止
-timeout /t 2 >nul
+echo ---------- 前端日志 ----------
+echo.
+
+:: 启动前端（前台运行），输出实时日志
+cd /d "%~dp0client"
+start /b "" npx vite --host 0.0.0.0 --port 3000
+
+:: 脚本持续运行，Ctrl+C 会终止所有 start /b 的子进程
+:: 主进程等待前端 vite 进程结束（后端结束时 vite 可能还在运行）
+waitfor /t 86400 pause_signal 2>nul
+exit /b 0
