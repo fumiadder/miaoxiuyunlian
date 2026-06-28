@@ -126,5 +126,27 @@ if (memberCount.count === 0) {
   console.log(`已插入 13 个排班人员 (${dateStr})`);
 }
 
+// 创建用户表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'worker',
+    is_admin INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  );
+`);
+
+// 插入默认管理员（仅在表为空时）
+const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
+if (userCount.count === 0) {
+  const insertUser = db.prepare(
+    'INSERT INTO users (name, password, role, is_admin) VALUES (?, ?, ?, ?)'
+  );
+  insertUser.run('admin', 'admin123', 'worker', 1);
+  console.log('已插入默认管理员: admin / admin123');
+}
+
 console.log('数据库迁移完成！');
 db.close();

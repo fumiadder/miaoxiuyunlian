@@ -13,12 +13,6 @@
         <el-form-item prop="password">
           <el-input v-model="form.password" prefix-icon="Lock" placeholder="请输入密码" type="password" size="large" show-password />
         </el-form-item>
-        <el-form-item prop="role">
-          <el-radio-group v-model="form.role" class="role-select">
-            <el-radio value="reporter" size="large" border>报修人</el-radio>
-            <el-radio value="worker" size="large" border>检修人</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" size="large" class="login-btn" :loading="loading" @click="handleLogin">
             登 录
@@ -33,6 +27,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import { login as loginApi } from '../api/auth'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
@@ -44,13 +39,11 @@ const loading = ref(false)
 const form = reactive({
   name: '',
   password: '',
-  role: 'reporter' as 'reporter' | 'worker',
 })
 
 const rules: FormRules = {
   name: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
 }
 
 async function handleLogin() {
@@ -59,11 +52,12 @@ async function handleLogin() {
 
   loading.value = true
   try {
-    userStore.login(form.name, form.password, form.role)
-    ElMessage.success(`欢迎，${form.name}`)
-    // 根据角色跳转
-    const target = form.role === 'reporter' ? '/repair/submit' : '/repair/workbench'
-    router.push(target)
+    const result = await loginApi(form.name, form.password)
+    userStore.login(result.name, result.role, result.token, result.is_admin)
+    ElMessage.success(`欢迎，${result.name}`)
+    router.push('/repair/submit')
+  } catch (error: any) {
+    ElMessage.error(error?.message || '登录失败')
   } finally {
     loading.value = false
   }
@@ -112,18 +106,6 @@ async function handleLogin() {
 
 .login-form {
   text-align: left;
-}
-
-.role-select {
-  width: 100%;
-  display: flex;
-  gap: 16px;
-}
-
-.role-select :deep(.el-radio) {
-  flex: 1;
-  margin-right: 0 !important;
-  justify-content: center;
 }
 
 .login-btn {

@@ -59,6 +59,12 @@
       </template>
       <el-menu-item index="/schedule/manage">排班表</el-menu-item>
     </el-sub-menu>
+
+    <!-- 人员管理 -->
+    <el-menu-item index="/admin/users">
+      <el-icon><User /></el-icon>
+      <template #title>人员管理</template>
+    </el-menu-item>
   </el-menu>
 </template>
 
@@ -72,6 +78,7 @@ import {
   SetUp,
   DataAnalysis,
   Calendar,
+  User,
 } from '@element-plus/icons-vue'
 
 const route = useRoute()

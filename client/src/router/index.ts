@@ -63,6 +63,11 @@ const routes: RouteRecordRaw[] = [
     name: 'ScheduleManage',
     component: () => import('../views/schedule/ScheduleManage.vue'),
   },
+  {
+    path: '/admin/users',
+    name: 'UserManage',
+    component: () => import('../views/admin/UserManage.vue'),
+  },
 ]
 
 const router = createRouter({
@@ -77,8 +82,7 @@ router.beforeEach((to, _from, next) => {
   // 公开页面直接放行
   if (to.meta.public) {
     if (userStore.isLoggedIn) {
-      const target = userStore.currentUser.role === 'reporter' ? '/repair/submit' : '/repair/workbench'
-      return next(target)
+      return next('/repair/submit')
     }
     return next()
   }

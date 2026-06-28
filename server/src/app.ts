@@ -5,6 +5,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
 
+import authRouter from './routes/auth.js';
 import difyRouter from './routes/dify.js';
 import scheduleRouter from './routes/schedule.js';
 import faultRouter from './routes/fault.js';
@@ -48,6 +49,7 @@ if (staticDir && fs.existsSync(path.resolve(staticDir))) {
 }
 
 // 路由挂载
+app.use('/api/auth', authRouter);
 app.use('/api/dify', difyRouter);
 app.use('/api/schedule', scheduleRouter);
 app.use('/api/fault', faultRouter);

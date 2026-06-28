@@ -6,25 +6,32 @@ export type UserRole = 'reporter' | 'worker'
 const STORAGE_KEY = 'maintenance_user'
 
 export const useUserStore = defineStore('user', () => {
-  const currentUser = ref<{ name: string; role: UserRole; token: string }>({
+  const currentUser = ref<{
+    name: string
+    role: UserRole
+    token: string
+    is_admin: boolean
+  }>({
     name: '',
-    role: 'reporter',
+    role: 'worker',
     token: '',
+    is_admin: false,
   })
 
   const isLoggedIn = computed(() => !!currentUser.value.token)
 
-  function login(name: string, _password: string, role: UserRole) {
+  function login(name: string, role: UserRole, token: string, is_admin: boolean = false) {
     currentUser.value = {
       name: name.trim(),
       role,
-      token: 'local-token-' + Date.now(),
+      token,
+      is_admin,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser.value))
   }
 
   function logout() {
-    currentUser.value = { name: '', role: 'reporter', token: '' }
+    currentUser.value = { name: '', role: 'worker', token: '', is_admin: false }
     localStorage.removeItem(STORAGE_KEY)
   }
 
@@ -40,7 +47,6 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  // 页面加载时自动恢复
   restoreSession()
 
   return { currentUser, isLoggedIn, login, logout }
