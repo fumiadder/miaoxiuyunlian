@@ -19,6 +19,12 @@ server/data/
 uploads/
 server/uploads/
 
+# Auto-generated (Element Plus auto-import)
+components.d.ts
+auto-imports.d.ts
+client/components.d.ts
+client/auto-imports.d.ts
+
 # IDE
 .vscode/
 .idea/
