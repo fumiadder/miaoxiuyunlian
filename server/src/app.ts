@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 import authRouter from './routes/auth.js';
 import difyRouter from './routes/dify.js';
@@ -12,6 +13,8 @@ import faultRouter from './routes/fault.js';
 import uploadRouter from './routes/upload.js';
 import reportRouter from './routes/report.js';
 import errorHandler from './middleware/errorHandler.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 获取本地局域网 IP
 function getLocalIP(): string {
@@ -42,12 +45,6 @@ if (!fs.existsSync(absoluteUploadDir)) {
 }
 app.use('/static/uploads', express.static(absoluteUploadDir));
 
-// 静态前端文件（生产环境）
-const staticDir = process.env.STATIC_DIR;
-if (staticDir && fs.existsSync(path.resolve(staticDir))) {
-  app.use(express.static(path.resolve(staticDir)));
-}
-
 // 路由挂载
 app.use('/api/auth', authRouter);
 app.use('/api/dify', difyRouter);
@@ -64,9 +61,23 @@ app.get('/api/health', (_req, res) => {
 // 全局错误处理中间件
 app.use(errorHandler);
 
+// 静态前端文件（生产环境）- 必须放在所有 API 路由之后
+const staticDir = process.env.STATIC_DIR;
+if (staticDir) {
+  const staticPath = path.resolve(__dirname, '../../', staticDir);
+  if (fs.existsSync(staticPath)) {
+    app.use(express.static(staticPath));
+    // SPA fallback：所有未匹配路由返回 index.html
+    app.get('*', (_req, res) => {
+      res.sendFile(path.resolve(staticPath, 'index.html'));
+    });
+    console.log(`[Server] 生产模式：静态文件服务已启用 ${staticPath}`);
+  }
+}
+
 // 启动服务（监听所有网卡，局域网可访问）
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Server] 工业维修管理系统后端已启动:`);
+  console.log(`[Server] 秒修云链后端已启动:`);
   console.log(`  本机访问:  http://localhost:${PORT}`);
   console.log(`  局域网访问: http://${LOCAL_IP}:${PORT}`);
   console.log(`  API 健康检查: http://${LOCAL_IP}:${PORT}/api/health`);

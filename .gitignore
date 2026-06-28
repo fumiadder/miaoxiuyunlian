@@ -44,3 +44,7 @@ yarn-error.log*
 # Temporary files
 *.tmp
 *.temp
+
+# Process IDs & logs from start scripts
+*.pid
+*.log
