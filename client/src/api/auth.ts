@@ -8,11 +8,11 @@ export interface LoginResult {
 }
 
 export function login(name: string, password: string) {
-  return request.post<{ data: LoginResult }>('/auth/login', { name, password }).then((r: any) => {
+  return request.post('/auth/login', { name, password }).then((r: any) => {
     if (r.code !== 0) {
       throw new Error(r.message || '登录失败')
     }
-    return r.data.data
+    return r.data
   })
 }
 
