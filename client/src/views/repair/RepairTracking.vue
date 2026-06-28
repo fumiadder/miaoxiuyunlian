@@ -54,7 +54,9 @@ import StatusBadge from '../../components/common/StatusBadge.vue'
 import { getFaultList } from '../../api/fault'
 import { FAULT_STATUS_MAP } from '../../types/fault'
 import type { FaultRecord, FaultStatus } from '../../types/fault'
+import { useUserStore } from '../../stores/user'
 
+const userStore = useUserStore()
 const list = ref<FaultRecord[]>([])
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
@@ -76,7 +78,7 @@ function getProgress(status: FaultStatus): number {
 async function fetchData() {
   try {
     const res = await getFaultList({
-      reporter_name: 'current_user',
+      reporter_name: userStore.currentUser.name,
       page: 1,
       page_size: 50,
     })

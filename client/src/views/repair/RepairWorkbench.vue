@@ -86,7 +86,9 @@ import StatusBadge from '../../components/common/StatusBadge.vue'
 import PhotoUploader from '../../components/common/PhotoUploader.vue'
 import { getFaultList, acceptFault, updateFaultStatus } from '../../api/fault'
 import type { FaultRecord } from '../../types/fault'
+import { useUserStore } from '../../stores/user'
 
+const userStore = useUserStore()
 const list = ref<FaultRecord[]>([])
 const completeDialogVisible = ref(false)
 const currentFault = ref<FaultRecord | null>(null)
@@ -101,7 +103,7 @@ function formatDate(date: string) {
 async function fetchData() {
   try {
     const res = await getFaultList({
-      assignee_name: 'current_worker',
+      assignee_name: userStore.currentUser.name,
       page: 1,
       page_size: 50,
     })
@@ -113,7 +115,7 @@ async function fetchData() {
 
 async function handleAccept(row: FaultRecord) {
   try {
-    await acceptFault(row.id, 'current_worker')
+    await acceptFault(row.id, userStore.currentUser.name)
     ElMessage.success('接单成功')
     fetchData()
   } catch {
@@ -125,7 +127,7 @@ async function handleStartRepair(row: FaultRecord) {
   try {
     await updateFaultStatus(row.id, {
       status: 'repairing',
-      operator_name: 'current_worker',
+      operator_name: userStore.currentUser.name,
     })
     ElMessage.success('已更新为维修中')
     fetchData()
@@ -153,7 +155,7 @@ async function handleComplete() {
       status: 'completed',
       completion_photo_url: completionPhotoUrl.value || undefined,
       repair_description: repairDescription.value,
-      operator_name: 'current_worker',
+      operator_name: userStore.currentUser.name,
     })
     ElMessage.success('维修已完成')
     completeDialogVisible.value = false
