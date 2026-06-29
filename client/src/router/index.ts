@@ -80,7 +80,7 @@ const router = createRouter({
   routes,
 })
 
-// 路由守卫：仅检查登录状态，不再限制角色
+// 路由守卫
 router.beforeEach((to, _from, next) => {
   const userStore = useUserStore()
 
@@ -95,6 +95,13 @@ router.beforeEach((to, _from, next) => {
   // 未登录跳转登录页
   if (!userStore.isLoggedIn) {
     return next('/login')
+  }
+
+  // 管理员专属路由拦截
+  const adminPaths = ['/admin', '/schedule']
+  const isAdminRoute = adminPaths.some(prefix => to.path.startsWith(prefix))
+  if (isAdminRoute && !userStore.currentUser.is_admin) {
+    return next('/repair/submit')
   }
 
   next()

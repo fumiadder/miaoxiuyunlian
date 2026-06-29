@@ -51,8 +51,8 @@
       <template #title>统计仪表盘</template>
     </el-menu-item>
 
-    <!-- 排班管理 -->
-    <el-sub-menu index="schedule-mgmt">
+    <!-- 排班管理（仅管理员） -->
+    <el-sub-menu v-if="isAdmin" index="schedule-mgmt">
       <template #title>
         <el-icon><Calendar /></el-icon>
         <span>排班管理</span>
@@ -60,8 +60,8 @@
       <el-menu-item index="/schedule/manage">排班表</el-menu-item>
     </el-sub-menu>
 
-    <!-- 系统管理 -->
-    <el-sub-menu index="admin-mgmt">
+    <!-- 系统管理（仅管理员） -->
+    <el-sub-menu v-if="isAdmin" index="admin-mgmt">
       <template #title>
         <el-icon><User /></el-icon>
         <span>系统管理</span>
@@ -76,6 +76,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '../../stores/app'
+import { useUserStore } from '../../stores/user'
 import {
   Box,
   Warning,
@@ -87,9 +88,11 @@ import {
 
 const route = useRoute()
 const appStore = useAppStore()
+const userStore = useUserStore()
 
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const activeMenu = computed(() => route.path)
+const isAdmin = computed(() => userStore.currentUser.is_admin)
 </script>
 
 <style scoped>
