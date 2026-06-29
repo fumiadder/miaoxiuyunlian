@@ -53,7 +53,7 @@ async function handleLogin() {
   loading.value = true
   try {
     const result = await loginApi(form.name, form.password)
-    userStore.login(result.id, result.name, result.role, result.token, result.is_admin)
+    userStore.login(result.id, result.name, result.role, result.token, result.is_admin, result.department)
     ElMessage.success(`欢迎，${result.name}`)
     router.push('/repair/submit')
   } catch (error: any) {

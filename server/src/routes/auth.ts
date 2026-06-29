@@ -4,16 +4,16 @@ import db from '../db/connection.js';
 const router = Router();
 
 // 从 token 中解析当前用户信息
-type CurrentUser = { id: number; name: string; role: string; is_admin: boolean } | null;
+type CurrentUser = { id: number; name: string; role: string; is_admin: boolean; department: string } | null;
 function getCurrentUser(req: Request): CurrentUser {
   const token = req.headers['x-token'] as string | undefined;
   if (!token || !token.startsWith('token-')) return null;
   const parts = token.split('-');
   const userId = parts[parts.length - 1];
   if (!userId) return null;
-  const user = db.prepare('SELECT id, name, role, is_admin FROM users WHERE id = ?').get(userId);
+  const user = db.prepare('SELECT id, name, role, is_admin, department FROM users WHERE id = ?').get(userId);
   if (!user) return null;
-  return { id: user.id, name: user.name, role: user.role, is_admin: !!user.is_admin };
+  return { id: user.id, name: user.name, role: user.role, is_admin: !!user.is_admin, department: user.department || '' };
 }
 
 // 登录
@@ -36,6 +36,7 @@ router.post('/login', (req, res) => {
       name: user.name,
       role: user.role,
       is_admin: !!user.is_admin,
+      department: user.department || '',
       token: 'token-' + Date.now() + '-' + user.id,
     },
   });
@@ -55,12 +56,12 @@ router.get('/users', (req, res) => {
   }
 
   if (currentUser.is_admin) {
-    const users = db.prepare('SELECT id, name, role, is_admin, created_at FROM users ORDER BY id DESC').all();
+    const users = db.prepare('SELECT id, name, role, is_admin, department, created_at FROM users ORDER BY id DESC').all();
     return res.json({ code: 0, data: users });
   }
 
   // 非管理员只能看到自己
-  const user = db.prepare('SELECT id, name, role, is_admin, created_at FROM users WHERE id = ?').get(currentUser.id);
+  const user = db.prepare('SELECT id, name, role, is_admin, department, created_at FROM users WHERE id = ?').get(currentUser.id);
   res.json({ code: 0, data: user ? [user] : [] });
 });
 
@@ -71,7 +72,7 @@ router.post('/users', (req, res) => {
     return res.status(403).json({ code: 1, message: '无权限' });
   }
 
-  const { name, password, role, is_admin } = req.body;
+  const { name, password, role, is_admin, department } = req.body;
   if (!name || !password) {
     return res.status(400).json({ code: 1, message: '用户名和密码不能为空' });
   }
@@ -82,8 +83,8 @@ router.post('/users', (req, res) => {
   }
 
   const result = db.prepare(
-    'INSERT INTO users (name, password, role, is_admin) VALUES (?, ?, ?, ?)'
-  ).run(name, password, role || 'worker', is_admin ? 1 : 0);
+    'INSERT INTO users (name, password, role, is_admin, department) VALUES (?, ?, ?, ?, ?)'
+  ).run(name, password, role || 'worker', is_admin ? 1 : 0, department || null);
 
   res.json({ code: 0, message: '添加成功', data: { id: result.lastInsertRowid } });
 });
@@ -112,7 +113,7 @@ router.put('/users/:id', (req, res) => {
   }
 
   // 管理员可以修改所有字段
-  const { name, password, role, is_admin } = req.body;
+  const { name, password, role, is_admin, department } = req.body;
 
   const fields: string[] = [];
   const values: any[] = [];
@@ -121,6 +122,7 @@ router.put('/users/:id', (req, res) => {
   if (password) { fields.push('password = ?'); values.push(password); }
   if (role) { fields.push('role = ?'); values.push(role); }
   if (is_admin !== undefined) { fields.push('is_admin = ?'); values.push(is_admin ? 1 : 0); }
+  if (department !== undefined) { fields.push('department = ?'); values.push(department || null); }
 
   if (fields.length === 0) {
     return res.status(400).json({ code: 1, message: '无更新内容' });

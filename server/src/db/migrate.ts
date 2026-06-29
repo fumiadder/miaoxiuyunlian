@@ -134,17 +134,26 @@ db.exec(`
     password TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'worker',
     is_admin INTEGER NOT NULL DEFAULT 0,
+    department TEXT,
     created_at TEXT DEFAULT (datetime('now','localtime'))
   );
 `);
+
+// 兼容旧表：添加 department 列（如果不存在）
+try {
+  db.prepare("SELECT department FROM users LIMIT 1").get();
+} catch {
+  db.exec("ALTER TABLE users ADD COLUMN department TEXT");
+  console.log('已添加 department 列到 users 表');
+}
 
 // 插入默认管理员（仅在表为空时）
 const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
 if (userCount.count === 0) {
   const insertUser = db.prepare(
-    'INSERT INTO users (name, password, role, is_admin) VALUES (?, ?, ?, ?)'
+    'INSERT INTO users (name, password, role, is_admin, department) VALUES (?, ?, ?, ?, ?)'
   );
-  insertUser.run('admin', 'admin123', 'worker', 1);
+  insertUser.run('admin', 'admin123', 'worker', 1, '综合管理部');
   console.log('已插入默认管理员: admin / admin123');
 }
 

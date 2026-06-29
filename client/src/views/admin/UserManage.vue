@@ -10,7 +10,13 @@
     <el-card class="table-card" shadow="never">
       <el-table :data="userList" v-loading="loading" stripe border>
         <el-table-column prop="id" label="ID" width="80" align="center" />
-        <el-table-column prop="name" label="用户名" min-width="150" />
+        <el-table-column prop="name" label="用户名" min-width="120" />
+        <el-table-column prop="department" label="部门" width="140" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.department" type="info" size="small">{{ row.department }}</el-tag>
+            <span v-else style="color: #c0c4cc;">-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="role" label="角色" width="120" align="center">
           <template #default="{ row }">
             <el-tag :type="row.role === 'reporter' ? 'primary' : 'success'">
@@ -67,6 +73,24 @@
         <el-form-item label="用户名" prop="name" v-if="userStore.currentUser.is_admin">
           <el-input v-model="dialogForm.name" placeholder="请输入用户名" />
         </el-form-item>
+        <el-form-item label="部门" v-if="userStore.currentUser.is_admin">
+          <el-select
+            v-model="dialogForm.department"
+            placeholder="请选择或输入部门"
+            clearable
+            filterable
+            allow-create
+            default-first-option
+            style="width: 100%"
+          >
+            <el-option label="电气车间" value="电气车间" />
+            <el-option label="机械车间" value="机械车间" />
+            <el-option label="仪表车间" value="仪表车间" />
+            <el-option label="综合管理部" value="综合管理部" />
+            <el-option label="生产部" value="生产部" />
+            <el-option label="设备部" value="设备部" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!isEdit && userStore.currentUser.is_admin">
           <el-input v-model="dialogForm.password" placeholder="请输入密码" type="password" show-password />
         </el-form-item>
@@ -116,6 +140,7 @@ const dialogForm = reactive({
   password: '',
   role: 'reporter' as 'reporter' | 'worker',
   is_admin: false,
+  department: '',
 })
 
 const computedDialogRules = computed<FormRules>(() => {
@@ -166,6 +191,7 @@ function resetDialogForm() {
   dialogForm.password = ''
   dialogForm.role = 'reporter'
   dialogForm.is_admin = false
+  dialogForm.department = ''
 }
 
 function openCreateDialog() {
@@ -182,6 +208,7 @@ function openEditDialog(row: any) {
   dialogForm.password = ''
   dialogForm.role = row.role
   dialogForm.is_admin = row.is_admin
+  dialogForm.department = row.department || ''
   dialogVisible.value = true
 }
 
@@ -201,6 +228,7 @@ async function handleSubmit() {
           name: dialogForm.name,
           role: dialogForm.role,
           is_admin: dialogForm.is_admin,
+          department: dialogForm.department,
         }
         if (dialogForm.password) {
           payload.password = dialogForm.password
@@ -214,6 +242,7 @@ async function handleSubmit() {
         password: dialogForm.password,
         role: dialogForm.role,
         is_admin: dialogForm.is_admin,
+        department: dialogForm.department,
       })
       ElMessage.success('新增成功')
     }

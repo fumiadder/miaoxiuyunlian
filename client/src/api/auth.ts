@@ -5,6 +5,7 @@ export interface LoginResult {
   name: string
   role: 'reporter' | 'worker'
   is_admin: boolean
+  department: string
   token: string
 }
 
@@ -21,11 +22,11 @@ export function getUsers() {
   return request.get('/auth/users').then(r => r.data)
 }
 
-export function createUser(data: { name: string; password: string; role: string; is_admin?: boolean }) {
+export function createUser(data: { name: string; password: string; role: string; is_admin?: boolean; department?: string }) {
   return request.post('/auth/users', data).then(r => r.data)
 }
 
-export function updateUser(id: number, data: { name?: string; password?: string; role?: string; is_admin?: boolean }) {
+export function updateUser(id: number, data: { name?: string; password?: string; role?: string; is_admin?: boolean; department?: string }) {
   return request.put(`/auth/users/${id}`, data).then(r => r.data)
 }
 
