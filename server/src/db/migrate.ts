@@ -158,4 +158,3 @@ if (userCount.count === 0) {
 }
 
 console.log('数据库迁移完成！');
-db.close();
