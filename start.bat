@@ -84,15 +84,15 @@ echo [5/7] 检查数据库...
 cd /d "%~dp0server"
 if not exist "data\maintenance.db" (
     echo [初始化] 正在创建数据库...
-    call npx tsx src/db/migrate.ts
-    if %errorlevel% neq 0 (
-        echo [错误] 数据库初始化失败
-        pause
-        exit /b 1
-    )
-) else (
-    echo [OK] 数据库已就绪
 )
+echo [迁移] 正在检查数据库结构...
+call npx tsx src/db/migrate.ts
+if %errorlevel% neq 0 (
+    echo [错误] 数据库迁移失败
+    pause
+    exit /b 1
+)
+echo [OK] 数据库已就绪
 echo.
 
 :: ============================================
