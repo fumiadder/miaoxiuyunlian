@@ -60,11 +60,15 @@
       <el-menu-item index="/schedule/manage">排班表</el-menu-item>
     </el-sub-menu>
 
-    <!-- 人员管理 -->
-    <el-menu-item index="/admin/users">
-      <el-icon><User /></el-icon>
-      <template #title>人员管理</template>
-    </el-menu-item>
+    <!-- 系统管理 -->
+    <el-sub-menu index="admin-mgmt">
+      <template #title>
+        <el-icon><User /></el-icon>
+        <span>系统管理</span>
+      </template>
+      <el-menu-item index="/admin/users">人员管理</el-menu-item>
+      <el-menu-item index="/admin/departments">部门管理</el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 

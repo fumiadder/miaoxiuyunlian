@@ -12,6 +12,7 @@ import scheduleRouter from './routes/schedule.js';
 import faultRouter from './routes/fault.js';
 import uploadRouter from './routes/upload.js';
 import reportRouter from './routes/report.js';
+import departmentsRouter from './routes/departments.js';
 import errorHandler from './middleware/errorHandler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -52,6 +53,7 @@ app.use('/api/schedule', scheduleRouter);
 app.use('/api/fault', faultRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/report', reportRouter);
+app.use('/api/departments', departmentsRouter);
 
 // 健康检查
 app.get('/api/health', (_req, res) => {

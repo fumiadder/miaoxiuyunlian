@@ -157,4 +157,30 @@ if (userCount.count === 0) {
   console.log('已插入默认管理员: admin / admin123');
 }
 
+// 创建部门表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS departments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  );
+`);
+
+// 插入默认部门（仅在表为空时）
+const deptCount = db.prepare('SELECT COUNT(*) as count FROM departments').get() as { count: number };
+if (deptCount.count === 0) {
+  const insertDept = db.prepare(
+    'INSERT INTO departments (name, description, sort_order) VALUES (?, ?, ?)'
+  );
+  insertDept.run('电气车间', '电气设备检修与维护', 1);
+  insertDept.run('机械车间', '机械设备检修与维护', 2);
+  insertDept.run('仪表车间', '仪表设备检修与维护', 3);
+  insertDept.run('综合管理部', '综合行政管理', 4);
+  insertDept.run('生产部', '生产调度与管理', 5);
+  insertDept.run('设备部', '设备管理与维护', 6);
+  console.log('已插入 6 个默认部门');
+}
+
 console.log('数据库迁移完成！');

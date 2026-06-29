@@ -76,19 +76,17 @@
         <el-form-item label="部门" v-if="userStore.currentUser.is_admin">
           <el-select
             v-model="dialogForm.department"
-            placeholder="请选择或输入部门"
+            placeholder="请选择部门"
             clearable
             filterable
-            allow-create
-            default-first-option
             style="width: 100%"
           >
-            <el-option label="电气车间" value="电气车间" />
-            <el-option label="机械车间" value="机械车间" />
-            <el-option label="仪表车间" value="仪表车间" />
-            <el-option label="综合管理部" value="综合管理部" />
-            <el-option label="生产部" value="生产部" />
-            <el-option label="设备部" value="设备部" />
+            <el-option
+              v-for="dept in deptOptions"
+              :key="dept.id"
+              :label="dept.name"
+              :value="dept.name"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!isEdit && userStore.currentUser.is_admin">
@@ -121,6 +119,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useUserStore } from '../../stores/user'
 import { getUsers, createUser, updateUser, deleteUser } from '../../api/auth'
+import { getDepartments } from '../../api/departments'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -128,6 +127,7 @@ import { Plus } from '@element-plus/icons-vue'
 const userStore = useUserStore()
 const loading = ref(false)
 const userList = ref<any[]>([])
+const deptOptions = ref<any[]>([])
 
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -183,6 +183,15 @@ async function fetchUsers() {
     ElMessage.error(error?.message || '获取人员列表失败')
   } finally {
     loading.value = false
+  }
+}
+
+async function fetchDepartments() {
+  try {
+    const res = await getDepartments()
+    deptOptions.value = res.data || res || []
+  } catch (error: any) {
+    ElMessage.error(error?.message || '获取部门列表失败')
   }
 }
 
@@ -267,6 +276,7 @@ async function handleDelete(id: number) {
 
 onMounted(() => {
   fetchUsers()
+  fetchDepartments()
 })
 </script>
 

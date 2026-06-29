@@ -68,6 +68,11 @@ const routes: RouteRecordRaw[] = [
     name: 'UserManage',
     component: () => import('../views/admin/UserManage.vue'),
   },
+  {
+    path: '/admin/departments',
+    name: 'DepartmentManage',
+    component: () => import('../views/admin/DepartmentManage.vue'),
+  },
 ]
 
 const router = createRouter({
