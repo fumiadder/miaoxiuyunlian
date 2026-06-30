@@ -38,24 +38,19 @@ function handleQuery() {
   isStreaming.value = true
   responseContent.value = ''
 
-  controller = sendDifyChat(
-    query.value,
-    undefined,
-    (message: any) => {
-      if (typeof message === 'object') {
-        // conversation_id data
-        return
-      }
+  controller = sendDifyChat({
+    query: query.value,
+    onMessage(message) {
       responseContent.value += message
     },
-    () => {
+    onDone() {
       isStreaming.value = false
     },
-    () => {
+    onError() {
       isStreaming.value = false
       responseContent.value += '\n\n[查询出错，请重试]'
-    }
-  )
+    },
+  })
 }
 
 onUnmounted(() => {

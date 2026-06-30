@@ -40,21 +40,19 @@ function handleQuery() {
 
   const queryText = `请查询设备 "${deviceName.value}" 的备件材料计划表，包括所需备件名称、型号、规格、数量和预计使用时间。`
 
-  controller = sendDifyChat(
-    queryText,
-    undefined,
-    (message: any) => {
-      if (typeof message === 'object') return
+  controller = sendDifyChat({
+    query: queryText,
+    onMessage(message) {
       responseContent.value += message
     },
-    () => {
+    onDone() {
       isStreaming.value = false
     },
-    () => {
+    onError() {
       isStreaming.value = false
       responseContent.value += '\n\n[查询出错，请重试]'
-    }
-  )
+    },
+  })
 }
 
 onUnmounted(() => {
