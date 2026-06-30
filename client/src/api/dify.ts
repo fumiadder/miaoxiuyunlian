@@ -57,6 +57,22 @@ export function sendDifyChat(options: DifyChatOptions) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
     signal: controller.signal,
+    // 非 SSE 错误响应（如 503 JSON）走这里
+    async onopen(response) {
+      if (response.ok && response.headers.get('content-type')?.includes('text/event-stream')) {
+        return // SSE 流，正常处理
+      }
+      // 非 SSE 响应，读取错误信息
+      const text = await response.text()
+      let msg = `请求失败: ${response.status}`
+      try {
+        const errData = JSON.parse(text)
+        msg = errData.message || msg
+      } catch {
+        msg = text || msg
+      }
+      throw new Error(msg)
+    },
     onmessage(ev) {
       // Dify SSE 流中每行以 "data: {...}" 格式返回
       if (!ev.data || ev.data.trim() === '') return
@@ -90,7 +106,7 @@ export function sendDifyChat(options: DifyChatOptions) {
     },
     onerror(err) {
       onError?.(err)
-      throw err
+      throw err // 抛出异常阻止 fetchEventSource 自动重试
     },
     onclose() {
       onDone?.()

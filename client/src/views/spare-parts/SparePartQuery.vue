@@ -46,9 +46,10 @@ function handleQuery() {
     onDone() {
       isStreaming.value = false
     },
-    onError() {
+    onError(err) {
       isStreaming.value = false
-      responseContent.value += '\n\n[查询出错，请重试]'
+      const detail = err?.message || ''
+      responseContent.value += `\n\n[查询出错${detail ? ': ' + detail : ''}]`
     },
   })
 }

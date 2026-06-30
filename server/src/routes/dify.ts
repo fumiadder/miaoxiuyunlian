@@ -21,6 +21,16 @@ router.post('/chat', (req: Request, res: Response): void => {
     return;
   }
 
+  // 诊断日志：输出当前 Dify 配置（隐藏 API Key 大部分内容）
+  const maskedKey = difyApiKey ? `${difyApiKey.slice(0, 8)}...${difyApiKey.slice(-4)}` : '(未配置)';
+  console.log(`[Dify] 配置检查: BASE_URL=${difyBaseUrl}, API_KEY=${maskedKey}, ALLOW_INSECURE=${allowInsecure}`);
+
+  if (!difyApiKey || difyApiKey === 'app-test-key') {
+    console.error('[Dify] 错误: DIFY_API_KEY 未配置或使用了默认值');
+    res.status(503).json({ code: 1, message: 'Dify API Key 未配置，请检查 server/.env 文件' });
+    return;
+  }
+
   // 设置 SSE 响应头
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -38,6 +48,8 @@ router.post('/chat', (req: Request, res: Response): void => {
   });
 
   const url = new URL(`${difyBaseUrl}/chat-messages`);
+  console.log(`[Dify] 正在连接: ${url.protocol}//${url.hostname}:${url.port || (url.protocol === 'https:' ? 443 : 80)}${url.pathname}`);
+
   const options: https.RequestOptions = {
     method: 'POST',
     hostname: url.hostname,
@@ -55,6 +67,8 @@ router.post('/chat', (req: Request, res: Response): void => {
   const protocol = url.protocol === 'https:' ? https : http;
 
   const proxyReq = protocol.request(options, (proxyRes) => {
+    console.log(`[Dify] Dify 响应状态码: ${proxyRes.statusCode}`);
+
     if (proxyRes.statusCode !== 200) {
       let errorData = '';
       proxyRes.setEncoding('utf8');
@@ -84,7 +98,7 @@ router.post('/chat', (req: Request, res: Response): void => {
   });
 
   proxyReq.on('error', (err) => {
-    console.error('[Dify SSE] 连接错误:', err);
+    console.error('[Dify SSE] 连接错误:', err.message);
     if (!res.headersSent) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
