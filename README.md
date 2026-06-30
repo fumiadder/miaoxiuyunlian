@@ -29,7 +29,7 @@
 
 1. 克隆项目：
 ```cmd
-git clone https://github.com/fumiadder/miaoxiuyunlian.git
+git clone https://gitee.com/fumiadder/miaoxiuyunlian.git
 cd miaoxiuyunlian
 ```
 

@@ -25,7 +25,7 @@ git pull origin main --autostash
 if %errorlevel% neq 0 (
     powershell -Command "Write-Host '[ERROR] git pull failed, project not started' -ForegroundColor Red"
     powershell -Command "Write-Host '[TIP] Use: start.bat no-pull   to skip git pull and start directly' -ForegroundColor Yellow"
-    powershell -Command "Write-Host '[TIP] Or run: git pull origin main --autostash   manually after fixing network' -ForegroundColor Yellow"
+    powershell -Command "Write-Host '[TIP] If using Gitee, run: git remote set-url origin https://gitee.com/fumiadder/miaoxiuyunlian.git' -ForegroundColor Yellow"
     pause
     exit /b 1
 )
