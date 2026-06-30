@@ -1,18 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
-chcp 65001 >nul 2>&1
-title 秒修云链 - 生产模式一键启动
 
-echo ============================================
-echo   秒修云链 - 生产模式一键启动
-echo   云铝溢鑫设备维修管理平台
-echo ============================================
-echo.
+:: 标题使用 ASCII 避免编码问题
+title miaoxiuyunlian-prod
+
+:: Banner 用 powershell 输出中文
+powershell -Command "Write-Host '============================================'; Write-Host '  秒修云链 - 生产模式一键启动'; Write-Host '  云铝溢鑫设备维修管理平台'; Write-Host '============================================'; Write-Host ''"
 
 :: ============================================
-:: 1. Git 拉取最新代码
+:: 1. Git 拉取最新代码（支持 no-pull 参数跳过）
 :: ============================================
-echo [1/8] 拉取最新代码...
+if /i "%1"=="no-pull" (
+    powershell -Command "Write-Host '[1/8] 跳过 git pull（no-pull 模式）'"
+    goto :check_node
+)
+
+powershell -Command "Write-Host '[1/8] 拉取最新代码...'"
 cd /d "%~dp0"
 
 :: 清理可能被错误跟踪的自动生成的文件，避免 pull 冲突
@@ -20,135 +23,137 @@ git rm --cached components.d.ts auto-imports.d.ts client/components.d.ts client/
 
 git pull origin main --autostash
 if %errorlevel% neq 0 (
-    echo [错误] git pull 失败，项目未启动
-    echo [提示] 如果提示 merge conflict，请手动解决后重试
+    powershell -Command "Write-Host '[ERROR] git pull failed, project not started' -ForegroundColor Red"
+    powershell -Command "Write-Host '[TIP] Use: start-prod.bat no-pull   to skip git pull and start directly' -ForegroundColor Yellow"
+    powershell -Command "Write-Host '[TIP] Or run: git pull origin main --autostash   manually after fixing network' -ForegroundColor Yellow"
     pause
     exit /b 1
 )
-echo [OK] 代码已更新
-echo.
+powershell -Command "Write-Host '[OK] Code updated'"
+powershell -Command "Write-Host ''"
 
+:check_node
 :: ============================================
 :: 2. 检查 Node.js
 :: ============================================
-echo [2/8] 检查 Node.js...
+powershell -Command "Write-Host '[2/8] Checking Node.js...'"
 where node >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] 未检测到 Node.js，请先安装 Node.js 18+
+    powershell -Command "Write-Host '[ERROR] Node.js not found. Please install Node.js 18+ first.' -ForegroundColor Red"
     pause
     exit /b 1
 )
-for /f "tokens=*" %%v in ('node -v') do echo [OK] Node.js %%v
-echo.
+for /f "tokens=*" %%v in ('node -v') do powershell -Command "Write-Host \"[OK] Node.js %%v\""
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 3. 安装后端依赖
 :: ============================================
-echo [3/8] 检查后端依赖...
+powershell -Command "Write-Host '[3/8] Checking backend dependencies...'"
 cd /d "%~dp0server"
 if not exist "node_modules" (
-    echo [安装] 正在安装后端依赖...
+    powershell -Command "Write-Host '[INSTALL] Installing backend dependencies...'"
     call npm install
     if %errorlevel% neq 0 (
-        echo [错误] 后端依赖安装失败
+        powershell -Command "Write-Host '[ERROR] Backend dependencies installation failed' -ForegroundColor Red"
         pause
         exit /b 1
     )
 ) else (
-    echo [OK] 后端依赖已安装
+    powershell -Command "Write-Host '[OK] Backend dependencies ready'"
 )
-echo.
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 4. 安装前端依赖
 :: ============================================
-echo [4/8] 检查前端依赖...
+powershell -Command "Write-Host '[4/8] Checking frontend dependencies...'"
 cd /d "%~dp0client"
 if not exist "node_modules" (
-    echo [安装] 正在安装前端依赖...
+    powershell -Command "Write-Host '[INSTALL] Installing frontend dependencies...'"
     call npm install
     if %errorlevel% neq 0 (
-        echo [错误] 前端依赖安装失败
+        powershell -Command "Write-Host '[ERROR] Frontend dependencies installation failed' -ForegroundColor Red"
         pause
         exit /b 1
     )
 ) else (
-    echo [OK] 前端依赖已安装
+    powershell -Command "Write-Host '[OK] Frontend dependencies ready'"
 )
-echo.
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 5. 构建前端
 :: ============================================
-echo [5/8] 构建前端...
+powershell -Command "Write-Host '[5/8] Building frontend...'"
 cd /d "%~dp0client"
 call npm run build
 if %errorlevel% neq 0 (
-    echo [错误] 前端构建失败
+    powershell -Command "Write-Host '[ERROR] Frontend build failed' -ForegroundColor Red"
     pause
     exit /b 1
 )
-echo [OK] 前端构建完成
-echo.
+powershell -Command "Write-Host '[OK] Frontend build complete'"
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 6. 初始化数据库
 :: ============================================
-echo [6/8] 检查数据库...
+powershell -Command "Write-Host '[6/8] Checking database...'"
 cd /d "%~dp0server"
 if not exist "data\maintenance.db" (
-    echo [初始化] 正在创建数据库...
+    powershell -Command "Write-Host '[INIT] Creating database...'"
 )
-echo [迁移] 正在检查数据库结构...
+powershell -Command "Write-Host '[MIGRATE] Checking database schema...'"
 call npx tsx src/db/migrate.ts
 if %errorlevel% neq 0 (
-    echo [错误] 数据库迁移失败
+    powershell -Command "Write-Host '[ERROR] Database migration failed' -ForegroundColor Red"
     pause
     exit /b 1
 )
-echo [OK] 数据库已就绪
-echo.
+powershell -Command "Write-Host '[OK] Database ready'"
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 7. 检查 .env
 :: ============================================
-echo [7/8] 检查配置文件...
+powershell -Command "Write-Host '[7/8] Checking config file...'"
 cd /d "%~dp0server"
 if not exist ".env" (
     if exist "..\.env.example" (
         copy "..\.env.example" ".env" >nul
-        echo [警告] 已从 .env.example 复制为 .env，请填写 Dify 配置后重新运行
+        powershell -Command "Write-Host '[WARN] Copied .env.example to .env. Please fill in Dify config and restart.' -ForegroundColor Yellow"
         pause
         exit /b 0
     ) else (
-        echo [错误] 缺少配置文件
+        powershell -Command "Write-Host '[ERROR] Missing config file' -ForegroundColor Red"
         pause
         exit /b 1
     )
 ) else (
-    echo [OK] 配置文件已存在
+    powershell -Command "Write-Host '[OK] Config file exists'"
 )
-echo.
+powershell -Command "Write-Host ''"
 
 :: ============================================
 :: 8. 启动生产服务（Ctrl+C 停止）
 :: ============================================
-echo [8/8] 启动生产服务...
+powershell -Command "Write-Host '[8/8] Starting production service...'"
 
 :: 获取本机 IP
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do set IP=%%a
 set IP=%IP: =%
 
-echo.
-echo ============================================
-echo   秒修云链 生产服务运行中
-echo   访问地址: http://%IP%:4000
-echo   默认账号: admin / admin123
-echo   按 Ctrl+C 停止服务
-echo ============================================
-echo.
-echo ---------- 服务日志 ----------
-echo.
+powershell -Command "Write-Host ''"
+powershell -Command "Write-Host '============================================'"
+powershell -Command "Write-Host '  miaoxiuyunlian production is running'"
+powershell -Command "Write-Host '  URL: http://%IP%:4000'"
+powershell -Command "Write-Host '  Default login: admin / admin123'"
+powershell -Command "Write-Host '  Press Ctrl+C to stop service'"
+powershell -Command "Write-Host '============================================'"
+powershell -Command "Write-Host ''"
+powershell -Command "Write-Host '---------- Service Logs ----------'"
+powershell -Command "Write-Host ''"
 
 :: 启动后端（前台运行），输出实时日志
 cd /d "%~dp0server"
